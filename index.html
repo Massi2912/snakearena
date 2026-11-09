@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Snake Arena</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div class="hud" id="hud" hidden>
+    <div class="hud-label">Punkte</div>
+    <div class="hud-value" id="score">0</div>
+    <div class="hud-rank" id="rank"></div>
+  </div>
+
+  <aside class="board" id="board" hidden>
+    <h3>Rangliste</h3>
+    <ol id="board-list"></ol>
+  </aside>
+
+  <button class="pause-btn" id="pause-btn" hidden>Pause</button>
+
+  <footer class="legend" id="legend" hidden aria-label="Tastenbelegung">
+    <span>Lenken <kbd>Maus</kbd> <kbd>←</kbd><kbd>→</kbd></span>
+    <span>Turbo <kbd>Klick</kbd> <kbd>Leertaste</kbd></span>
+    <span>Pause <kbd>P</kbd></span>
+  </footer>
+
+  <button class="boost-btn" id="boost-btn" hidden aria-label="Turbo">Turbo</button>
+
+  <!-- Start- und Game-Over-Menü -->
+  <div class="overlay" id="overlay">
+    <section class="panel">
+      <h1 id="ov-title">Snake Arena</h1>
+      <p class="lead" id="ov-text"></p>
+
+      <dl class="result" id="result" hidden>
+        <div><dt>Punkte</dt><dd id="res-score"></dd></div>
+        <div><dt>Platz</dt><dd id="res-rank"></dd></div>
+        <div><dt>Ausgeschieden</dt><dd id="res-cause"></dd></div>
+      </dl>
+
+      <div class="setup">
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" type="text" maxlength="14" placeholder="Dein Name" autocomplete="off">
+        </div>
+        <div class="field">
+          <span class="lbl" id="color-lbl">Farbe</span>
+          <div class="swatches" id="swatches" role="radiogroup" aria-labelledby="color-lbl"></div>
+        </div>
+        <canvas class="preview" id="preview" width="640" height="150" aria-hidden="true"></canvas>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="play">Spielen</button>
+        <p class="best" id="best"></p>
+      </div>
+
+      <div class="keys-help">
+        <div class="desk"><span>Lenken</span><span class="k"><kbd>Maus</kbd> oder <kbd>←</kbd><kbd>→</kbd></span></div>
+        <div class="desk"><span>Turbo (kostet Länge)</span><span class="k"><kbd>Klick</kbd> oder <kbd>Leertaste</kbd></span></div>
+        <div class="desk"><span>Pause</span><span class="k"><kbd>P</kbd></span></div>
+        <div class="touch-only"><span>Lenken</span><span>Finger auf dem Bildschirm</span></div>
+        <div class="touch-only"><span>Turbo</span><span>Taste unten rechts</span></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Pausenmenü -->
+  <div class="overlay" id="pause" hidden>
+    <section class="panel">
+      <h1>Pause</h1>
+      <p class="lead" id="pause-info"></p>
+
+      <div class="actions">
+        <button class="btn primary" id="resume">Weiterspielen</button>
+        <button class="btn" id="restart">Neustart</button>
+        <button class="btn" id="to-menu">Hauptmenü</button>
+      </div>
+
+      <div class="keys-help">
+        <div class="desk"><span>Lenken</span><span class="k"><kbd>Maus</kbd> oder <kbd>←</kbd><kbd>→</kbd></span></div>
+        <div class="desk"><span>Turbo (kostet Länge)</span><span class="k"><kbd>Klick</kbd> oder <kbd>Leertaste</kbd></span></div>
+        <div class="desk"><span>Weiterspielen</span><span class="k"><kbd>P</kbd> <kbd>Esc</kbd> <kbd>Enter</kbd></span></div>
+        <div class="touch-only"><span>Lenken</span><span>Finger auf dem Bildschirm</span></div>
+        <div class="touch-only"><span>Turbo</span><span>Taste unten rechts</span></div>
+      </div>
+    </section>
+  </div>
+
+<script src="script.js"></script>
+</body>
+</html>

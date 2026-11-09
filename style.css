@@ -1,0 +1,295 @@
+/* ==========================================================
+   Snake Arena – Oberfläche
+   Alles in rem: die Schrift wächst mit dem Bildschirm mit.
+   Die Akzentfarbe ist die Farbe der gewählten Schlange.
+   ========================================================== */
+:root {
+  --bg: #0b0f17;
+  --panel: #121826;
+  --line: #28324a;
+  --text: #e6eaf5;
+  --muted: #8791ab;
+  --accent: #ff6b5b;
+  --key-bg: #1b2336;
+  --key-line: #38445f;
+  --key-text: #c9d1e6;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html {
+  font-size: clamp(14px, calc(min(100vw, 100vh) / 55), 26px);
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  overscroll-behavior: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+canvas#game {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+[hidden] { display: none !important; }
+
+/* ---------- Anzeigen im Spiel ---------- */
+.hud {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.5rem;
+  background: rgba(11, 15, 23, 0.72);
+  border: 1px solid var(--line);
+  pointer-events: none;
+}
+.hud-label { font-size: 0.75rem; color: var(--muted); }
+.hud-value { font-size: 1.6rem; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.hud-rank { margin-top: 0.15rem; font-size: 0.8rem; color: var(--muted); }
+
+.board {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  width: 13rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.5rem;
+  background: rgba(11, 15, 23, 0.72);
+  border: 1px solid var(--line);
+  pointer-events: none;
+  font-size: 0.8rem;
+}
+.board h3 { margin-bottom: 0.35rem; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+.board ol { list-style: none; }
+.board li {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  padding: 0.12rem 0;
+  font-variant-numeric: tabular-nums;
+}
+.board li .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.board li .pt { color: var(--muted); }
+.board li.me { color: var(--accent); font-weight: 700; }
+.board li.me .pt { color: var(--accent); }
+
+/* Pause-Taste oben in der Mitte */
+.pause-btn {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.45rem 1rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--key-line);
+  border-bottom-width: 2px;
+  background: rgba(27, 35, 54, 0.9);
+  color: var(--key-text);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pause-btn:hover { background: #222c45; }
+.pause-btn:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+/* Tastenbelegung: schlichte, flache Tastenkappen */
+.legend {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem 1.6rem;
+  width: max-content;
+  max-width: 60vw;
+  font-size: 0.8rem;
+  color: var(--muted);
+  pointer-events: none;
+}
+.legend span { display: inline-flex; align-items: center; gap: 0.3rem; white-space: nowrap; }
+
+kbd {
+  display: inline-block;
+  min-width: 1.7em;
+  padding: 0.1em 0.45em;
+  border: 1px solid var(--key-line);
+  border-bottom-width: 2px;
+  border-radius: 0.25em;
+  background: var(--key-bg);
+  color: var(--key-text);
+  font: inherit;
+  font-size: 0.85em;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* Turbo-Taste für Touch */
+.boost-btn {
+  position: fixed;
+  right: 1.2rem;
+  bottom: 1.4rem;
+  width: 5rem;
+  height: 5rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--key-line);
+  border-bottom-width: 3px;
+  background: var(--key-bg);
+  color: var(--key-text);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  touch-action: none;
+  display: none;
+}
+.boost-btn.down { background: #26314d; transform: translateY(2px); }
+body.touch .boost-btn { display: block; }
+body.touch .legend { display: none; }
+
+/* ---------- Menüs (Start, Pause, Game Over) ----------
+   Ein Streifen am linken Rand, das Spiel läuft rechts daneben weiter. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: stretch;
+  background: rgba(5, 7, 11, 0.38);
+}
+.panel {
+  width: min(100vw, 28rem);
+  padding: 2.2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow-y: auto;
+  background: rgba(18, 24, 38, 0.95);
+  border-right: 1px solid var(--line);
+  scrollbar-width: none;
+}
+.panel::-webkit-scrollbar { display: none; }
+.panel > * { flex: none; }
+
+.panel h1 {
+  font-size: 3.1rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.025em;
+}
+.panel .lead {
+  margin-top: 0.9rem;
+  max-width: 22rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Ergebnis (nur nach dem Ausscheiden) */
+.result { margin-top: 1.4rem; border-top: 1px solid var(--line); }
+.result > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.95rem;
+}
+.result dt { color: var(--muted); }
+.result dd { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Name, Farbe, Vorschau */
+.setup { margin-top: 1.5rem; }
+.field + .field { margin-top: 1rem; }
+.field label, .field .lbl { display: block; margin-bottom: 0.4rem; font-size: 0.82rem; color: var(--muted); }
+.field input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.35rem;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.field input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.swatches { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.swatch {
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 0;
+  border-radius: 0.4rem;
+  cursor: pointer;
+}
+.swatch.on { outline: 2px solid var(--text); outline-offset: 2px; }
+.swatch:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+.preview {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 640 / 150;
+  margin-top: 1rem;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Buttons */
+.actions { margin-top: 1.4rem; display: grid; gap: 0.6rem; }
+.btn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+.btn:hover { background: rgba(255, 255, 255, 0.06); }
+.btn:active { transform: translateY(1px); }
+.btn:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0b0f17;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.btn.primary:hover { filter: brightness(1.08); background: var(--accent); }
+.best { font-size: 0.85rem; color: var(--muted); }
+
+/* Steuerung */
+.keys-help {
+  margin-top: 1.6rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.keys-help > div { display: flex; justify-content: space-between; gap: 0.8rem; align-items: center; }
+.keys-help .k { display: inline-flex; gap: 0.25rem; align-items: center; }
+body.touch .keys-help .desk { display: none; }
+.keys-help .touch-only { display: none; }
+body.touch .keys-help .touch-only { display: flex; }
